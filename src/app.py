@@ -131,3 +131,18 @@ def signup_for_activity(activity_name: str, email: str):
     # Add student
     activity["participants"].append(email)
     return {"message": f"Signed up {email} for {activity_name}"}
+
+
+@app.delete("/api/activities/{activity_id}/participants/{email}")
+def unregister_participant(activity_id: str, email: str):
+    """Unregister a participant from an activity"""
+    if activity_id not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    
+    activity = activities[activity_id]
+    
+    if email not in activity["participants"]:
+        raise HTTPException(status_code=404, detail="Participant not found in this activity")
+    
+    activity["participants"].remove(email)
+    return {"message": f"Unregistered {email} from {activity_id}"}
