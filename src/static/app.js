@@ -53,9 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
       activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
       
       for (const activity of activities) {
-        // Fetch participants for each activity
-        const participantsResponse = await fetch(`/api/activities/${activity.id}/participants`);
-        const participants = await participantsResponse.json();
+        // Use participants included in the activities response to avoid N+1 requests
+        const participants = Array.isArray(activity.participants) ? activity.participants : [];
         
         // Create activity card
         const card = document.createElement('div');
