@@ -60,27 +60,56 @@ document.addEventListener("DOMContentLoaded", () => {
         const card = document.createElement('div');
         card.className = 'activity-card';
         
-        const participantsList = participants.length > 0
-          ? `<ul class="participants-list">
-              ${participants.map(p => `
-                <li>
-                  <span class="participant-email">${p.email}</span>
-                  <button class="delete-btn" data-activity="${activity.id}" data-email="${p.email}" title="Remove participant">
-                    🗑️
-                  </button>
-                </li>
-              `).join('')}
-            </ul>`
-          : '<p class="no-participants">No participants yet. Be the first to sign up!</p>';
+        // Activity title
+        const titleEl = document.createElement('h4');
+        titleEl.textContent = activity.name;
         
-        card.innerHTML = `
-          <h4>${activity.name}</h4>
-          <p>${activity.description}</p>
-          <div class="participants-section">
-            <h5>📋 Participants (${participants.length})</h5>
-            ${participantsList}
-          </div>
-        `;
+        // Activity description
+        const descEl = document.createElement('p');
+        descEl.textContent = activity.description;
+        
+        // Participants section
+        const participantsSection = document.createElement('div');
+        participantsSection.className = 'participants-section';
+        
+        const participantsHeader = document.createElement('h5');
+        participantsHeader.textContent = `📋 Participants (${participants.length})`;
+        participantsSection.appendChild(participantsHeader);
+        
+        if (participants.length > 0) {
+          const ul = document.createElement('ul');
+          ul.className = 'participants-list';
+          
+          participants.forEach(p => {
+            const li = document.createElement('li');
+            
+            const emailSpan = document.createElement('span');
+            emailSpan.className = 'participant-email';
+            emailSpan.textContent = p.email;
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.title = 'Remove participant';
+            deleteBtn.textContent = '🗑️';
+            deleteBtn.dataset.activity = String(activity.id);
+            deleteBtn.dataset.email = p.email;
+            
+            li.appendChild(emailSpan);
+            li.appendChild(deleteBtn);
+            ul.appendChild(li);
+          });
+          
+          participantsSection.appendChild(ul);
+        } else {
+          const noParticipantsEl = document.createElement('p');
+          noParticipantsEl.className = 'no-participants';
+          noParticipantsEl.textContent = 'No participants yet. Be the first to sign up!';
+          participantsSection.appendChild(noParticipantsEl);
+        }
+        
+        card.appendChild(titleEl);
+        card.appendChild(descEl);
+        card.appendChild(participantsSection);
         
         activitiesList.appendChild(card);
         
