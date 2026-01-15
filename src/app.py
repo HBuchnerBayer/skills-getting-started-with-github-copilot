@@ -83,6 +83,32 @@ def root():
     return RedirectResponse(url="/static/index.html")
 
 
+@app.get("/api/activities")
+def get_activities_api():
+    """Get all activities with their details formatted for the frontend"""
+    activities_list = []
+    for name, details in activities.items():
+        activities_list.append({
+            "id": name,
+            "name": name,
+            "description": details["description"],
+            "schedule": details["schedule"],
+            "max_participants": details["max_participants"],
+            "current_participants": len(details["participants"])
+        })
+    return activities_list
+
+
+@app.get("/api/activities/{activity_id}/participants")
+def get_activity_participants(activity_id: str):
+    """Get the list of participants for a specific activity"""
+    if activity_id not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    
+    activity = activities[activity_id]
+    return [{"email": email} for email in activity["participants"]]
+
+
 @app.get("/activities")
 def get_activities():
     return activities

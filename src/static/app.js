@@ -41,6 +41,55 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function loadActivities() {
+    try {
+      const response = await fetch('/api/activities');
+      const activities = await response.json();
+      
+      const activitiesList = document.getElementById('activities-list');
+      const activitySelect = document.getElementById('activity');
+      
+      activitiesList.innerHTML = '';
+      activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
+      
+      for (const activity of activities) {
+        // Fetch participants for each activity
+        const participantsResponse = await fetch(`/api/activities/${activity.id}/participants`);
+        const participants = await participantsResponse.json();
+        
+        // Create activity card
+        const card = document.createElement('div');
+        card.className = 'activity-card';
+        
+        const participantsList = participants.length > 0
+          ? `<ul class="participants-list">
+              ${participants.map(p => `<li>${p.email}</li>`).join('')}
+            </ul>`
+          : '<p class="no-participants">No participants yet. Be the first to sign up!</p>';
+        
+        card.innerHTML = `
+          <h4>${activity.name}</h4>
+          <p>${activity.description}</p>
+          <div class="participants-section">
+            <h5>📋 Participants (${participants.length})</h5>
+            ${participantsList}
+          </div>
+        `;
+        
+        activitiesList.appendChild(card);
+        
+        // Add to select dropdown
+        const option = document.createElement('option');
+        option.value = activity.id;
+        option.textContent = activity.name;
+        activitySelect.appendChild(option);
+      }
+    } catch (error) {
+      console.error('Error loading activities:', error);
+      document.getElementById('activities-list').innerHTML = '<p>Error loading activities.</p>';
+    }
+  }
+
   // Handle form submission
   signupForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -83,4 +132,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize app
   fetchActivities();
+  loadActivities();
 });
